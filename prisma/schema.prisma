@@ -1,0 +1,214 @@
+// Shared identity store — the continuity substrate and cross-mode identity link. This schema IS the
+// single source-of-truth contract; accessors are the generated Prisma client. The agent's "self across
+// time" lives here, not in any running process.
+//
+// Self-managed: the agent curates all of this through tools (remember/forget, journal, revise_self_image,
+// form_opinion, reweigh_focus, tend_self). There is NO background summarizer/worker that writes on its
+// behalf — that would be the code deciding its inner state (the agency-invariant violation; see CLAUDE.md).
+//
+// Everything starts EMPTY. The agent fills its memory, self-image, and opinions entirely from experience.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Memory ──────────────────────────────────────────────────────────────────────────────────────────
+// The agent's long-term memory: anything it decides is worth keeping — about the game, the user, itself,
+// or events. `key` lets it update a topic in place; `category` groups entries. Soft-delete via
+// `forgottenAt`: a forgotten memory leaves the always-on prompt but stays findable via `recall`.
+model Memory {
+  id          Int       @id @default(autoincrement())
+  key         String?
+  category    String    @default("misc")
+  content     String
+  forgottenAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([key])
+  @@index([category])
+  @@index([forgottenAt])
+}
+
+// ── Self-image (see docs/DECISIONS.md) ───────────────────────────────────────────────────────────────────
+// A single durable free-text self-description the agent maintains: who it is, how it sees itself, who
+// it's becoming as it plays. It reads this each relevant turn and rewrites the whole page via
+// `revise_self_image`. Singleton living document. This is HER STATE: the seed is empty and nothing in
+// the code computes or branches on it. [AGENCY: her-state]
+model SelfImage {
+  key       String   @id @default("current")
+  content   String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+// ── Opinions (see docs/DECISIONS.md) ─────────────────────────────────────────────────────────────────────
+// Discrete opinions the agent forms from experience — about strategies, the game, the user, itself.
+// `subject` is what the opinion is about; `stance` is the opinion in its own words; `confidence` is its
+// own 0–1 sense of how settled it is; `basis` is the experience that produced it. Soft-retire via
+// `retiredAt` when it changes its mind (kept for history). HER STATE — formed/revised/dropped only by
+// her tools; the code never sets one. [AGENCY: her-state]
+model Opinion {
+  id         Int       @id @default(autoincrement())
+  subject    String
+  stance     String
+  confidence Float     @default(0.5)
+  basis      String?
+  retiredAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([subject])
+  @@index([retiredAt])
+}
+
+// ── Priorities — the CORE INVARIANT instance ────────────────────────────────────────────────────────
+// The agent's self-owned attention weighting over its three domains {inner_life, game, social} + a
+// free-text rationale. It reads this each tick and REWRITES it via `reweigh_focus`, exactly like memory/
+// journal. The seed is a STARTING STATE, not a rule. NOTHING in the code may branch on these weights to
+// choose behavior — the heartbeat only surfaces them; the agent supplies the ordering and the choice.
+// See CLAUDE.md. [AGENCY: her-state]
+model Priorities {
+  key       String   @id @default("current")
+  weights   Json // { inner_life: number, game: number, social: number } — higher = more
+  rationale String
+  updatedAt DateTime @updatedAt
+}
+
+// ── Felt state — also a CORE INVARIANT instance ─────────────────────────────────────────────────────
+// The agent's self-owned energy + mood, IN ITS OWN WORDS (free text, deliberately NOT enums/numbers — a
+// number invites the code to compute it), plus a note. It reads this each tick and rewrites it via
+// `tend_self`. The code surfaces neutral grounding cues (time of day) it interprets; it NEVER computes
+// energy or branches on it. The seed is a starting state. [AGENCY: her-state]
+model SelfState {
+  key       String   @id @default("current")
+  energy    String
+  mood      String
+  note      String
+  updatedAt DateTime @updatedAt
+}
+
+// ── Journals — private working notes, one per self ("chat" | "game") ────────────────────────────────
+// The agent reads itself back and edits against the current text (never blind). The "chat" page is for
+// durable personal reflection; the "game" page is build/strategy notes from playing. Singleton per self.
+model Journal {
+  self      String   @id // "chat" | "game"
+  content   String
+  updatedAt DateTime @updatedAt
+}
+
+// ── Current moment — a short, volatile "what I'm doing right now" blurb, one per self ────────────────
+// Overwrite-in-full, kept separate from the durable journal so the journal stops being churned as a
+// status line. "chat" self (chat/heartbeat/reflect) and "game" self (a build pass) each own a field.
+model CurrentMoment {
+  self      String   @id // "chat" | "game"
+  text      String
+  updatedAt DateTime @updatedAt
+}
+
+// ── Reflections — closing thoughts + a legibility trail of self-state changes ────────────────────────
+// Newest-first inner-life signal surfaced in reflect passes. Also where reweigh_focus / tend_self /
+// revise_self_image record their change + rationale, so the WHY of a self-change stays visible.
+model Reflection {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+}
+
+// ── Chat turns — the conversation the agent has with the user ────────────────────────────────────────
+model ChatTurn {
+  id        Int      @id @default(autoincrement())
+  role      String // "user" | "agent"
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// ── Ephemeral chat-image bytes for the UI ONLY (display, ~1-day retention) ───────────────────────────
+// When the user attaches an image, the data: URI is stored here keyed to its user ChatTurn so the UI can
+// re-show it after reload. NOT memory — the agent's memory of an image is the caption-only ImageCaption
+// row; these bytes never enter a prompt. Purged past the TTL.
+model ChatImage {
+  id        Int      @id @default(autoincrement())
+  turnId    Int
+  data      String
+  createdAt DateTime @default(now())
+
+  @@index([turnId])
+  @@index([createdAt])
+}
+
+// ── Image captions — the vision lane (docs/MODEL_SERVING.md). Caption-only, no image bytes. ──────────
+// The vision lane describes an attached image (or game screenshot) and writes a caption row here; the
+// caption is what's queryable via `recall_images`. Soft-delete via `forgottenAt`.
+model ImageCaption {
+  id          Int       @id @default(autoincrement())
+  caption     String
+  tags        String[]  @default([])
+  forgottenAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([forgottenAt])
+}
+
+// ── Experiences — game-world events the agent perceives ──────────────────────────────────────────────
+// Salient events the game pushes (a win, a loss, a notable moment) plus the agent's own progress notes.
+// Surfaced in the heartbeat "what's new" delta. `kind` labels the event; the framing reads as "here's
+// what happened", never "go deal with it". [AGENCY: perception plumbing — the response stays hers.]
+model Experience {
+  id        Int      @id @default(autoincrement())
+  kind      String // "progress" | "outcome" | "event" | game-defined
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([kind, createdAt])
+}
+
+// ── Latest game snapshot, POSTed by the game backend after a pass ────────────────────────────────────
+// Lets the chat-self reference the current game state without a tool round-trip. game→agent over HTTP
+// (no shared DB). Singleton living document.
+model GameContext {
+  key       String   @id @default("current")
+  body      String
+  meta      Json?
+  updatedAt DateTime @updatedAt
+}
+
+// ── Outbound proactive messages the agent chooses to send (proactive lane, feature-flagged) ──────────
+// The chat UI consumes unconsumed rows. Recording here decouples delivery from the loop.
+model OutboundMessage {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  consumed  Boolean  @default(false)
+
+  @@index([consumed, createdAt])
+}
+
+// ── Proactive reach-out rail bookkeeping ─────────────────────────────────────────────────────────────
+// Records when the agent last reached out so the cooldown rail can damp runaway. A rail's state, NOT the
+// agent's behavior. [AGENCY: code-fixed — safety rail]
+model ProactiveState {
+  key          String    @id @default("current")
+  lastReachOut DateTime?
+}
+
+// ── Warm-base cache snapshot (docs/WARM_BASE_CACHING.md) ─────────────────────────────────────────────
+// The frozen, byte-stable base prompt served verbatim until the next rebake (so llama.cpp keeps its KV
+// prefix warm), plus the identity rows it was baked from. The per-turn tail diffs live memory against
+// `items`; the periodic rebake re-merges edits into a fresh active row. Cache maintenance over state the
+// agent owns — NOT its behavior. Exactly one active row.
+model PromptBaseSnapshot {
+  id       Int      @id @default(autoincrement())
+  bakedAt  DateTime @default(now())
+  baseText String
+  items    Json // { memory: Row[] } — the diff baseline
+  active   Boolean  @default(true)
+
+  @@index([active, bakedAt])
+}

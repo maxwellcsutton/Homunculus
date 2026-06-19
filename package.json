@@ -1,0 +1,43 @@
+{
+  "name": "homunculus",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Boilerplate for a local-native agentic AI that plays turn-based, idle, and text-based games and forms its own memories, opinions, and self-image. One continuous loop engine + local model + shared identity store. The game is an abstract adapter; chat is a mode.",
+  "scripts": {
+    "dev": "next dev",
+    "model": "tsx scripts/serveModel.ts",
+    "embed": "tsx scripts/serveEmbed.ts",
+    "vision": "tsx scripts/serveVision.ts",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "rebake": "tsx scripts/rebake.ts",
+    "heartbeat": "tsx scripts/heartbeat.ts",
+    "backup": "tsx scripts/backup.ts",
+    "backup:verify": "tsx scripts/backup.ts verify"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "next": "^15.1.0",
+    "pg": "^8.13.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsx": "^4.19.0",
+    "zod": "^3.24.0",
+    "zod-to-json-schema": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "prisma": "^6.1.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.8"
+  }
+}

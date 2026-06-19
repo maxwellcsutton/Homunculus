@@ -1,0 +1,39 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# next.js
+/.next/
+/out/
+next-env.d.ts.bak
+
+# production
+/build
+
+# prisma generated client
+/src/generated
+
+# env
+.env
+.env.local
+.env.test
+.env*.local
+
+# logs
+*.log
+npm-debug.log*
+
+# backups (local dumps — never commit identity data)
+/backups
+
+# misc
+.DS_Store
+*.pem
+.vscode/*
+!.vscode/extensions.json
+.idea
+tsconfig.tsbuildinfo
+
+# local machine-specific Claude Code config (holds personal paths)
+.claude/settings.local.json

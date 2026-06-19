@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The chat model lane (llama-server via scripts/serveModel.ts). For a second "game" lane, copy this to
+  com.homunculus.model-game.plist, set LLAMA_PORT to the game port, and set MODEL_BASE_URL_GAME in .env.
+  Likewise copy for the embed (serveEmbed) and vision (serveVision) lanes.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.homunculus.model</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd __REPO__ &amp;&amp; exec npm run model</string>
+  </array>
+  <key>WorkingDirectory</key><string>__REPO__</string>
+  <key>KeepAlive</key><true/>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>__HOME__/Library/Logs/homunculus/model.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/Library/Logs/homunculus/model.log</string>
+</dict>
+</plist>

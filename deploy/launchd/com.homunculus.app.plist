@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The brain app (Next.js server + continuous loop). KeepAlive=true → launchd restarts it if it dies; the
+  only reliable stop is `launchctl bootout` (deploy/teardown.sh). Edit the __PLACEHOLDERS__ (or let
+  deploy.sh template them) before loading. See deploy/README.md.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.homunculus.app</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd __REPO__ &amp;&amp; exec npm run start</string>
+  </array>
+  <key>WorkingDirectory</key><string>__REPO__</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>NODE_ENV</key><string>production</string>
+    <key>PORT</key><string>3000</string>
+  </dict>
+  <key>KeepAlive</key><true/>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>__HOME__/Library/Logs/homunculus/app.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/Library/Logs/homunculus/app.log</string>
+</dict>
+</plist>

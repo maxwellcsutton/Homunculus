@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hourly backup of the identity store (scripts/backup.ts). StartInterval = 3600s. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.homunculus.backup-hourly</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd __REPO__ &amp;&amp; exec npm run backup</string>
+  </array>
+  <key>WorkingDirectory</key><string>__REPO__</string>
+  <key>StartInterval</key><integer>3600</integer>
+  <key>RunAtLoad</key><false/>
+  <key>StandardOutPath</key><string>__HOME__/Library/Logs/homunculus/backup.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/Library/Logs/homunculus/backup.log</string>
+</dict>
+</plist>
