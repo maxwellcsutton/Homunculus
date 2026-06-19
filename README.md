@@ -1,5 +1,7 @@
 # homunculus
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+
 A boilerplate for a **local-native autonomous agent that plays games it can keep pace with — turn-based,
 idle, text-based, and the like — and forms its own memories, opinions, and self-image** as a result of
 playing. One continuous agentic-loop engine + a local model + a shared identity store. The game is an
@@ -21,21 +23,58 @@ Identity starts **blank**: the agent authors who it is from experience.
 - **Self-management tools** (`src/tools/`) — memory, recall, journals, priorities, felt state, **self-image**,
   **opinions**, proactive outreach (flagged off). Everything self-authored.
 - **Local model serving** (`src/model/`, `scripts/serve*.ts`) — llama.cpp `llama-server`, OpenAI-compatible,
-  with a single main lane + optional work / embedding / vision lanes. No hosted API.
+  on a chat (base) lane + an optional game lane (the primary work lane), plus embedding / vision lanes. No hosted API.
 - **The GameAdapter contract** (`src/game/`) — an abstract HTTP contract any game implements (see
   `docs/GAME_TYPES.md` for which game types fit and how). No working game ships here, by design.
 - **A minimal chat UI + API** (`src/app/`) and **deploy/ops** scaffolding (`deploy/`, `scripts/backup.ts`).
 
-## Quickstart
+## Usage
+
+You bring three things: **Node 18+**, a local **Postgres**, and a **GGUF model** served by llama.cpp's
+`llama-server`. Inference is entirely local — there's no hosted API and nothing leaves your machine.
+
+### Start your own agent
+
+**Scaffold a customized copy — recommended (Claude Code).**
+This repo ships a `/new-project` skill (`.claude/skills/new-project`). In Claude Code, run **`/new-project`**:
+it interviews you — name, starting character, game wiring, model lanes, owner name, heartbeat cadence,
+database — then copies the boilerplate into a fresh repo wired to your answers (`.env`, package name,
+launchd labels, an optional seed character, an optional game-adapter scaffold) and makes the first commit.
+Fastest path from clone to a running, named agent.
+
+**Or run the boilerplate directly.**
 ```bash
-cp .env.example .env          # set DATABASE_URL, LLAMA_MODEL_PATH, LLAMA_SERVER_BIN
+cp .env.example .env       # set DATABASE_URL, LLAMA_MODEL_PATH, LLAMA_SERVER_BIN, AGENT_OWNER_NAME
 npm install
-npm run db:push               # create the schema (everything starts empty)
-npm run model                 # start the local model (separate terminal)
-npm run dev                   # start the brain; open http://localhost:3000/chat
+npm run db:push            # create the identity store (everything starts empty)
+npm run model              # serve the local model            (separate terminal)
+npm run dev                # start the brain → http://localhost:3000/chat
 ```
-The continuous loop (heartbeat + rebake) starts with the server. Talk to the agent in the chat UI; wire a
-game via the GameAdapter contract when you're ready.
+Talk to it at **`/chat`**. The continuous loop runs the moment the server boots: per-lane heartbeats give it
+its own clock (it acts on its own time, not just request→response) and a periodic rebake keeps the prompt
+cache warm. Optional extra lanes: `npm run embed` (semantic dedup) and `npm run vision` (image captions).
+
+### Wire up a game
+
+No game ships — by design. The brain is game-agnostic and talks to a game over a small HTTP contract (the
+**GameAdapter**). To connect one:
+
+1. **Check it fits.** The envelope is *tempo*, not genre — turn-based, idle, and text games work; real-time
+   twitch doesn't. See `docs/GAME_TYPES.md`.
+2. **Implement the contract** on your game's side: a text snapshot of the current state, a catalog of
+   available actions, and an exec callback that runs one action (plus optional pause/resume sessions for
+   voluntary play). The shapes are in `src/game/adapter.ts`; a documented stub is `src/game/stubAdapter.ts`;
+   the full contract is `docs/GAME_ADAPTER.md`.
+3. **Point the brain at it** — set `GAME_EXEC_URL` / `GAME_CATALOG_URL` (and optional `GAME_OPEN_URL` /
+   `GAME_CLOSE_URL`) in `.env`. Until then the game lane stays dormant and it's chat-only.
+
+In Claude Code, the **`/wire-a-game`** skill walks through the whole contract end to end.
+
+### Give it a character (optional)
+
+It ships **blank** and authors its own identity, opinions, and self-image from play. To seed a starting
+character or domain, extend `STATIC_HEAD` in `src/prompt/staticBase.ts` — still a *starting state* it can
+rewrite, never fixed behavior (`CLAUDE.md`). Or just let it become someone on its own.
 
 ## Docs
 - `CLAUDE.md` — the agency invariant + repo map + the engineering lessons. **Start here.**
@@ -54,7 +93,9 @@ game via the GameAdapter contract when you're ready.
   **`new-project`** (run `/new-project` to interactively scaffold a customized copy of this boilerplate
   into a fresh repo).
 
-## Status
-Compiles and builds clean (`npm run typecheck`, `npm run build`). It's a **boilerplate**: the loop, prompt
-caching, tools, serving, and game contract are wired and validated; you bring the model file, a Postgres DB,
-and (optionally) a game.
+## License
+
+[GNU AGPLv3](LICENSE) — free and open, and built to stay that way. Use it, fork it, modify it, run it, and
+build your own agent with it. The one condition: any version you **distribute or run as a network service**
+must also be open-sourced under the AGPL — it can't be taken closed or proprietary. Copyright © 2026 Maxwell
+Sutton.
