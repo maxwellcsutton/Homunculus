@@ -18,7 +18,7 @@ import type { ModelClient } from "@/model/client";
 // the chat/self lane.
 //
 // CORE INVARIANT: the framing offers a reply + the agent's own options; it never forces a response (it can
-// be genuinely busy). [AGENCY: her-state — whether/when/how it replies.]
+// be genuinely busy). [AGENCY: its-state — whether/when/how it replies.]
 
 const HISTORY_MAX = Number(process.env.AGENT_HISTORY_MAX ?? "10");
 

@@ -5,7 +5,7 @@ import type { ToolDef } from "./types";
 // and who it's becoming as it plays and talks. Same self-managed pattern as the journal: it reads its
 // current self-image each relevant turn (surfaced in context) and rewrites the WHOLE page. Nothing in the
 // code computes or branches on this — it's the agent's account of itself, in its own words. The seed is
-// empty; the agent authors all of it from experience. [AGENCY: her-state]
+// empty; the agent authors all of it from experience. [AGENCY: its-state]
 //
 // This is distinct from the private journal (working notes / passing reflection) and from opinions
 // (discrete stances about things outside itself). Self-image is specifically the agent's standing answer to

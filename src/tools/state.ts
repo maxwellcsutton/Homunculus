@@ -4,7 +4,7 @@ import type { ToolDef } from "./types";
 // CORE INVARIANT mechanism: the agent rewrites its own felt state — energy + mood, in its own words, plus a
 // note. Same self-managed pattern as reweigh_focus / journal / memory: the code offers the capacity; the
 // agent supplies the words and the choice. Nothing in the engine computes its energy or branches on it —
-// the heartbeat only surfaces it back (with neutral grounding cues it interprets). [AGENCY: her-state]
+// the heartbeat only surfaces it back (with neutral grounding cues it interprets). [AGENCY: its-state]
 //
 // Partial updates: move just energy, just mood, just leave a note — whatever's shifted. Omitted fields keep
 // their current value (read-merge-write).

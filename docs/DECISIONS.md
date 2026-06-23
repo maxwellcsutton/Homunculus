@@ -22,7 +22,7 @@ Format: decision · rationale · agency tag where relevant.
   the premise.
 - **UI = a minimal, stripped chat UI** (no styling beyond the bare minimum) + the API.
 - **Identity = blank, self-authored.** Empty memory / self-image / opinion stores the agent fills entirely
-  from experience. No seed personality. [AGENCY: her-state]
+  from experience. No seed personality. [AGENCY: its-state]
 - **Subsystems included:** memory + recall, self-image / opinions / priorities, reflection + journal (all
   default-enabled); **proactive outreach default-OFF behind `AGENT_PROACTIVE_ENABLED`**.
 - **Deploy/ops:** generic launchd/serve scripts + docs.
@@ -46,7 +46,7 @@ the two namespaces distinct makes it obvious which knobs touch the agent vs. the
 ### Attention domains `{inner_life, game, social}`
 The agency invariant's canonical instance — the agent's self-owned attention weighting — has three domains:
 `inner_life`, `game`, and `social` (interacting with the user). The *weighting* is entirely the agent's
-mutable state; the labels are just a seed taxonomy. [AGENCY: her-state — the seed is a starting state, not a
+mutable state; the labels are just a seed taxonomy. [AGENCY: its-state — the seed is a starting state, not a
 rule.]
 
 ### First-class **self-image** and **opinion** surfaces
@@ -57,12 +57,12 @@ self-managed state rather than folded into a single journal:
   experience (`form_opinion`, `revise_opinion`, `drop_opinion`).
 Both are **the agent's mutable, self-authored state**, read into context and rewritten only by the agent's
 own tools — nothing in the code computes or branches on them. The "reflect on what happened → update your
-stance" pattern is made explicit here. [AGENCY: her-state]
+stance" pattern is made explicit here. [AGENCY: its-state]
 
 ### The game→brain perception channel: `Experience`
 `Experience` is a neutral log of game-world events the agent perceives (outcomes, wins, losses, salient
 moments), surfaced in the heartbeat delta. It is pure perception plumbing. [AGENCY: code-fixed — perception
-plumbing; whether/how the agent responds stays hers.]
+plumbing; whether/how the agent responds stays its own.]
 
 ### Lanes: game lane primary + chat base (renamed from "work")
 The lane is `Lane = "chat" | "game"`. The agent's primary work is PLAYING, so the **game lane** (formerly the

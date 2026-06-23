@@ -164,7 +164,7 @@ async function runSocialEngage(deps: HeartbeatDeps, focus?: string): Promise<Run
 // Game-mode engagement = a voluntary play pass the agent CHOSE during idle. It asks the game to open a
 // session (pause + snapshot + catalog + token), runs the pass on the game lane via the SAME runGamePass
 // core the game-initiated path uses, then closes the session. If no game is configured/reachable,
-// openBuildSession returns null and this is a clean no-op. [AGENCY: her-state] — only runs because it
+// openBuildSession returns null and this is a clean no-op. [AGENCY: its-state] — only runs because it
 // called engage("game").
 async function runGameEngage(deps: HeartbeatDeps = {}, focus?: string): Promise<RunLoopResult> {
   const session = await openBuildSession();

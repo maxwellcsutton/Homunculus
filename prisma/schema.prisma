@@ -38,8 +38,8 @@ model Memory {
 // ── Self-image (see docs/DECISIONS.md) ───────────────────────────────────────────────────────────────────
 // A single durable free-text self-description the agent maintains: who it is, how it sees itself, who
 // it's becoming as it plays. It reads this each relevant turn and rewrites the whole page via
-// `revise_self_image`. Singleton living document. This is HER STATE: the seed is empty and nothing in
-// the code computes or branches on it. [AGENCY: her-state]
+// `revise_self_image`. Singleton living document. This is ITS STATE: the seed is empty and nothing in
+// the code computes or branches on it. [AGENCY: its-state]
 model SelfImage {
   key       String   @id @default("current")
   content   String   @default("")
@@ -50,8 +50,8 @@ model SelfImage {
 // Discrete opinions the agent forms from experience — about strategies, the game, the user, itself.
 // `subject` is what the opinion is about; `stance` is the opinion in its own words; `confidence` is its
 // own 0–1 sense of how settled it is; `basis` is the experience that produced it. Soft-retire via
-// `retiredAt` when it changes its mind (kept for history). HER STATE — formed/revised/dropped only by
-// her tools; the code never sets one. [AGENCY: her-state]
+// `retiredAt` when it changes its mind (kept for history). ITS STATE — formed/revised/dropped only by
+// its tools; the code never sets one. [AGENCY: its-state]
 model Opinion {
   id         Int       @id @default(autoincrement())
   subject    String
@@ -71,7 +71,7 @@ model Opinion {
 // free-text rationale. It reads this each tick and REWRITES it via `reweigh_focus`, exactly like memory/
 // journal. The seed is a STARTING STATE, not a rule. NOTHING in the code may branch on these weights to
 // choose behavior — the heartbeat only surfaces them; the agent supplies the ordering and the choice.
-// See CLAUDE.md. [AGENCY: her-state]
+// See CLAUDE.md. [AGENCY: its-state]
 model Priorities {
   key       String   @id @default("current")
   weights   Json // { inner_life: number, game: number, social: number } — higher = more
@@ -83,7 +83,7 @@ model Priorities {
 // The agent's self-owned energy + mood, IN ITS OWN WORDS (free text, deliberately NOT enums/numbers — a
 // number invites the code to compute it), plus a note. It reads this each tick and rewrites it via
 // `tend_self`. The code surfaces neutral grounding cues (time of day) it interprets; it NEVER computes
-// energy or branches on it. The seed is a starting state. [AGENCY: her-state]
+// energy or branches on it. The seed is a starting state. [AGENCY: its-state]
 model SelfState {
   key       String   @id @default("current")
   energy    String
@@ -159,7 +159,7 @@ model ImageCaption {
 // ── Experiences — game-world events the agent perceives ──────────────────────────────────────────────
 // Salient events the game pushes (a win, a loss, a notable moment) plus the agent's own progress notes.
 // Surfaced in the heartbeat "what's new" delta. `kind` labels the event; the framing reads as "here's
-// what happened", never "go deal with it". [AGENCY: perception plumbing — the response stays hers.]
+// what happened", never "go deal with it". [AGENCY: perception plumbing — the response stays its own.]
 model Experience {
   id        Int      @id @default(autoincrement())
   kind      String // "progress" | "outcome" | "event" | game-defined

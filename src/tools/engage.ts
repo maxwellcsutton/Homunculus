@@ -7,7 +7,7 @@ export type EngageMode = "game" | "social" | "reflect";
 // `engage` to step into a higher-access mode. This tool is the DECISION marker — it does nothing itself;
 // the dispatcher reads the call's `mode` and runs the matching tier-2 pass. Lives only in the lean tier-1
 // toolset, never the general registry, so it can't leak into normal chat/game turns. The choice is
-// entirely the agent's. [AGENCY: her-state]
+// entirely the agent's. [AGENCY: its-state]
 export const engageTool: ToolDef<{ mode: EngageMode; focus?: string }> = {
   name: "engage",
   description:

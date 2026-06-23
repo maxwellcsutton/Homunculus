@@ -122,7 +122,7 @@ export const prismaStore: IdentityStore = {
     return r.count > 0;
   },
 
-  // ── priorities + felt state (seed once if absent; hers thereafter) ──
+  // ── priorities + felt state (seed once if absent; the agent's thereafter) ──
   async getPriorities(): Promise<PrioritiesRecord> {
     const r = await prisma.priorities.findUnique({ where: { key: "current" } });
     if (!r) {

@@ -4,7 +4,7 @@ import type { ToolDef } from "./types";
 // THE mechanism behind the CORE INVARIANT: the agent rewrites its own attention ordering. This tool writes
 // its self-owned Priorities record — same self-managed pattern as journal/memory. The code offers the
 // capacity; the agent supplies the weighting and the choice. Nothing in the engine reads these weights to
-// decide for it. [AGENCY: her-state]
+// decide for it. [AGENCY: its-state]
 export const reweighFocusTool: ToolDef<{
   weights: { inner_life: number; game: number; social: number };
   rationale: string;

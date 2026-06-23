@@ -12,7 +12,7 @@ its own memory, opinions, and self-image. Read `CLAUDE.md` first — especially 
 ## The agency check (run this against every behavior change)
 Whenever a change decides whether some agent behavior is fixed-in-code vs. the agent's own mutable state:
 1. It MUST be the agent's state unless it's a safety rail / responsiveness guarantee / plumbing.
-2. Call it out in your reply: the decision, `[AGENCY: her-state]` or `[AGENCY: code-fixed]`, one-line why.
+2. Call it out in your reply: the decision, `[AGENCY: its-state]` or `[AGENCY: code-fixed]`, one-line why.
 3. For `code-fixed`, justify it (rail/guarantee/plumbing). If you can't, it's likely a violation — flag it.
 4. Record anything that diverges from these conventions in `docs/DECISIONS.md`.
 Smell test: writing a constant, map, or rule where the agent's judgment belongs (a mood→action map, an

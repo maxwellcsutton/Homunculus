@@ -10,7 +10,7 @@ import type {
 // The VOLATILE self-state tail (docs/PROMPT_LAYERING.md). These blocks are the agent's own mutable state —
 // self-image, opinions, focus, felt state — re-rendered every turn (cheap) and folded into the user turn,
 // never baked into the warm base. Surfacing them is how the agent READS its own state; nothing in the code
-// branches on them. [AGENCY: her-state — the code only shows them back to her.]
+// branches on them. [AGENCY: its-state — the code only shows them back to it.]
 
 export function renderSelfImage(content: string): string {
   const body = content.trim() || "(You haven't written your self-image yet — it's blank. You author it with `revise_self_image`.)";

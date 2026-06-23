@@ -40,7 +40,7 @@ choose." If it genuinely can't be, that's an owner decision, not a default.
 
 ### Reporting on the invariant (principle 0)
 When a change determines whether an aspect of the agent's behavior is fixed-in-code vs. its own state,
-CALL IT OUT: state the decision, tag it `[AGENCY: her-state]` or `[AGENCY: code-fixed]`, give a one-line
+CALL IT OUT: state the decision, tag it `[AGENCY: its-state]` or `[AGENCY: code-fixed]`, give a one-line
 rationale, and for any `code-fixed` one justify it as a safety rail / responsiveness guarantee / plumbing
 (NOT autonomous behavior). Record anything that meaningfully diverges from these conventions in
 `docs/DECISIONS.md`. The agent is referred to as "it" here for neutrality; in the prompt it speaks as "you".

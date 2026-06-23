@@ -253,8 +253,8 @@ export async function runLoop(opts: RunLoopOptions): Promise<RunLoopResult> {
     // intent lands even when only narrated. The text itself is stripped below by sanitizeReply. Scope is
     // deliberately small (current_moment + remember + forget, plus message_user when in this mode's
     // toolset). A pure prose paragraph with no tool reference is NOT recovered. Dedup against any real
-    // tool_call of the same tool this turn so a recovered call can't double-fire. [AGENCY: her-state —
-    // routes the decision she expressed; never originates behavior.]
+    // tool_call of the same tool this turn so a recovered call can't double-fire. [AGENCY: its-state —
+    // routes the decision it expressed; never originates behavior.]
     if (finalText && mode.name === "chat") {
       const alreadyCalled = new Set(toolCalls.map((c) => c.name));
       let ri = 0;
@@ -262,7 +262,7 @@ export async function runLoop(opts: RunLoopOptions): Promise<RunLoopResult> {
       if (mode.tools.some((t) => t.name === "message_user")) recoverNames.push("message_user");
       for (const rec of recoverTypedToolCalls(finalText, recoverNames)) {
         if (alreadyCalled.has(rec.name)) continue;
-        tlog(`[recover] ${rec.name} from text-form tool intent [AGENCY: her-state]`);
+        tlog(`[recover] ${rec.name} from text-form tool intent [AGENCY: its-state]`);
         const result = await executeTool(mode, { id: `recover-${rec.name}-${ri++}`, name: rec.name, args: rec.args }, ctx);
         tlog(`[recover] ${rec.name} → ${result.length}ch`);
       }

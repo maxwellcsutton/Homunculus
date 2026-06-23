@@ -7,7 +7,7 @@ import type { ToolDef } from "./types";
 // your approach), made explicit and self-managed. Nothing in the code forms an opinion or reads one to decide
 // for the agent; opinions are surfaced into its context and it does what it wants with them. The store is
 // empty at the start; every opinion is the agent's, formed from something that actually happened.
-// [AGENCY: her-state]
+// [AGENCY: its-state]
 
 export const formOpinionTool: ToolDef<{ subject: string; stance: string; confidence?: number; basis?: string }> = {
   name: "form_opinion",
